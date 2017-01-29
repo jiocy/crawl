@@ -1125,11 +1125,6 @@ void no_ability_msg()
     {
         if (you.transform_uncancellable)
             mpr("You can't untransform!");
-        else
-        {
-            ASSERT(you.hunger_state > HS_SATIATED);
-            mpr("Sorry, you're too full to transform right now.");
-        }
     }
     else if (player_mutation_level(MUT_TENGU_FLIGHT)
              || player_mutation_level(MUT_BIG_WINGS))
