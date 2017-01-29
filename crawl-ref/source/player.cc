@@ -1145,7 +1145,7 @@ int player_regen()
     if (you.species == SP_VAMPIRE)
     {
         if (you.hunger_state <= HS_STARVING)
-            rr = 0;   // No regeneration for starving vampires.
+            rr /= 4;   // Almost no regeneration for starving vampires.
         else if (you.hunger_state < HS_SATIATED)
             rr /= 2;  // Halved regeneration for hungry vampires.
         else if (you.hunger_state >= HS_FULL)
@@ -1234,27 +1234,8 @@ int player_hunger_rate(bool temp)
     }
 
     if (you.species == SP_VAMPIRE)
-    {
-        switch (you.hunger_state)
-        {
-        case HS_FAINTING:
-        case HS_STARVING:
-            hunger -= 3;
-            break;
-        case HS_NEAR_STARVING:
-        case HS_VERY_HUNGRY:
-        case HS_HUNGRY:
-            hunger--;
-            break;
-        case HS_SATIATED:
-            break;
-        case HS_FULL:
-        case HS_VERY_FULL:
-        case HS_ENGORGED:
-            hunger += 2;
-            break;
-        }
-    }
+        hunger += 2;
+    
     else
     {
         hunger += player_mutation_level(MUT_FAST_METABOLISM)
@@ -1449,12 +1430,7 @@ int player_res_cold(bool calc_unid, bool temp, bool items)
         rc += get_form()->res_cold();
 
         if (you.species == SP_VAMPIRE)
-        {
-            if (you.hunger_state <= HS_STARVING)
-                rc += 2;
-            else if (you.hunger_state < HS_SATIATED)
-                rc++;
-        }
+            rc++;
 
 #if TAG_MAJOR_VERSION == 34
         if (you.species == SP_LAVA_ORC && temperature_effect(LORC_COLD_VULN))
@@ -1680,11 +1656,6 @@ int player_res_poison(bool calc_unid, bool temp, bool items)
     // mutations:
     rp += player_mutation_level(MUT_POISON_RESISTANCE, temp);
     rp += player_mutation_level(MUT_SLIMY_GREEN_SCALES, temp) == 3 ? 1 : 0;
-
-    // Only thirsty vampires are naturally poison resistant.
-    // XXX: && temp?
-    if (you.species == SP_VAMPIRE && you.hunger_state < HS_SATIATED)
-        rp++;
 
     if (temp)
     {
@@ -2897,16 +2868,8 @@ void level_change(bool skip_attribute_increase)
             case SP_VAMPIRE:
                 if (you.experience_level == 3)
                 {
-                    if (you.hunger_state > HS_SATIATED)
-                    {
-                        mprf(MSGCH_INTRINSIC_GAIN, "If you weren't so full, "
-                             "you could now transform into a vampire bat.");
-                    }
-                    else
-                    {
-                        mprf(MSGCH_INTRINSIC_GAIN,
-                             "You can now transform into a vampire bat.");
-                    }
+                    mprf(MSGCH_INTRINSIC_GAIN,
+                         "You can now transform into a vampire bat.");
                 }
                 break;
 
@@ -3342,28 +3305,26 @@ static void _display_vampire_status()
     {
         case HS_FAINTING:
         case HS_STARVING:
-            attrib.push_back("are immune to poison");
-            attrib.push_back("significantly resist cold");
             attrib.push_back("are immune to negative energy");
+            attrib.push_back("are immune to poison");
             attrib.push_back("resist torment");
-            attrib.push_back("do not heal.");
+            attrib.push_back("barely heal at all.");
             break;
         case HS_NEAR_STARVING:
         case HS_VERY_HUNGRY:
         case HS_HUNGRY:
-            attrib.push_back("resist poison");
-            attrib.push_back("resist cold");
-            attrib.push_back("significantly resist negative energy");
-            attrib.push_back("have a slow metabolism");
+            attrib.push_back("resist negative energy.");
             attrib.push_back("heal slowly.");
             break;
         case HS_SATIATED:
             attrib.push_back("resist negative energy.");
+            attrib.push_back("heal normally.");
+
             break;
         case HS_FULL:
         case HS_VERY_FULL:
         case HS_ENGORGED:
-            attrib.push_back("have a fast metabolism");
+            attrib.push_back("resist negative energy.");
             attrib.push_back("heal quickly.");
             break;
     }
@@ -4128,8 +4089,6 @@ int get_real_mp(bool include_items)
 bool player_regenerates_hp()
 {
     if (player_mutation_level(MUT_SLOW_REGENERATION) == 3)
-        return false;
-    if (you.species == SP_VAMPIRE && you.hunger_state <= HS_STARVING)
         return false;
     return true;
 }
