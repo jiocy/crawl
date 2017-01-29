@@ -658,6 +658,8 @@ static const map<species_type, species_def> species_data =
     { STAT_INT, STAT_DEX }, 5,
     { { MUT_FANGS, 3, 1 }, { MUT_ACUTE_VISION, 1, 1 },
       { MUT_UNBREATHING, 1, 1 }, },
+      { MUT_NEGATIVE_ENERGY_RESISTANCE, 1, 1 }, },
+      { MUT_COLD_RESISTANCE, 1, 9 }, },
     {},
     {},
     { JOB_GLADIATOR, JOB_ASSASSIN, JOB_ENCHANTER, JOB_EARTH_ELEMENTALIST,
