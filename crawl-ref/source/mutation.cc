@@ -564,30 +564,20 @@ static void _display_vampire_attributes()
     {
         {"                     ", "<green>Full</green>       ", "Satiated   ", "<yellow>Thirsty</yellow>    ", "<lightred>Bloodless</lightred>"},
                                  //Full       Satiated      Thirsty         Bloodless
-        {"Metabolism           ", "fast       ", "normal     ", "slow       ", "none  "},
-
         {"Regeneration         ", "fast       ", "normal     ", "slow       ", "none  "},
 
-        {"Stealth boost        ", "none       ", "none       ", "minor      ", "major "},
+        {"Stealth boost        ", "none       ", "none       ", "major      ", "major "},
 
         {"Hunger costs         ", "full       ", "full       ", "halved     ", "none  "},
-
-        {"\n<w>Resistances</w>\n"
-         "Poison resistance    ", "           ", "           ", "+          ", "immune"},
-
-        {"Cold resistance      ", "           ", "           ", "+          ", "++    "},
-
-        {"Negative resistance  ", "           ", " +         ", "++         ", "+++   "},
-
-        {"Rotting resistance   ", "           ", "           ", "+          ", "+     "},
-
-        {"Torment resistance   ", "           ", "           ", "           ", "+     "},
 
         {"\n<w>Transformations</w>\n"
          "Bat form             ", "no         ", "yes        ", "yes        ", "yes   "},
 
         {"Other forms and \n"
          "berserk              ", "yes        ", "yes        ", "no         ", "no    "}
+
+        {"\nWhen you are bloodless, you are resistant to poison, rotting, and torment,"
+         "\nas well as extremely resistant to all necromantic effects."},
     };
 
     int current = 0;
