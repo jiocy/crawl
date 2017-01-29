@@ -1145,7 +1145,7 @@ int player_regen()
     if (you.species == SP_VAMPIRE)
     {
         if (you.hunger_state <= HS_STARVING)
-            rr /= 4;   // Almost no regeneration for starving vampires.
+            rr = 0;   // No regeneration for starving vampires.
         else if (you.hunger_state < HS_SATIATED)
             rr /= 2;  // Halved regeneration for hungry vampires.
         else if (you.hunger_state >= HS_FULL)
@@ -1428,9 +1428,6 @@ int player_res_cold(bool calc_unid, bool temp, bool items)
             rc++;
 
         rc += get_form()->res_cold();
-
-        if (you.species == SP_VAMPIRE)
-            rc++;
 
 #if TAG_MAJOR_VERSION == 34
         if (you.species == SP_LAVA_ORC && temperature_effect(LORC_COLD_VULN))
@@ -2868,8 +2865,16 @@ void level_change(bool skip_attribute_increase)
             case SP_VAMPIRE:
                 if (you.experience_level == 3)
                 {
-                    mprf(MSGCH_INTRINSIC_GAIN,
-                         "You can now transform into a vampire bat.");
+                    if (you.hunger_state > HS_SATIATED)
+                    {
+                        mprf(MSGCH_INTRINSIC_GAIN, "If you weren't so full, "
+                             "you could now transform into a vampire bat.");
+                    }
+                    else
+                    {
+                       mprf(MSGCH_INTRINSIC_GAIN,
+                            "You can now transform into a vampire bat.");
+                    }
                 }
                 break;
 
@@ -3189,10 +3194,8 @@ int player_stealth()
     // Thirsty vampires are stealthier.
     if (you.species == SP_VAMPIRE)
     {
-        if (you.hunger_state <= HS_STARVING || you.form == transformation::bat)
+        if (you.hunger_state <= HS_HUNGRY || you.form == transformation::bat)
             stealth += STEALTH_PIP * 2;
-        else if (you.hunger_state <= HS_HUNGRY)
-            stealth += STEALTH_PIP;
     }
 
     if (!you.airborne())
@@ -3308,12 +3311,14 @@ static void _display_vampire_status()
             attrib.push_back("are immune to negative energy");
             attrib.push_back("are immune to poison");
             attrib.push_back("resist torment");
-            attrib.push_back("barely heal at all.");
+            attrib.push_back("are extra stealthy");
+            attrib.push_back("do not heal.");
             break;
         case HS_NEAR_STARVING:
         case HS_VERY_HUNGRY:
         case HS_HUNGRY:
             attrib.push_back("resist negative energy.");
+            attrib.push_back("are extra stealthy");
             attrib.push_back("heal slowly.");
             break;
         case HS_SATIATED:
@@ -4089,6 +4094,8 @@ int get_real_mp(bool include_items)
 bool player_regenerates_hp()
 {
     if (player_mutation_level(MUT_SLOW_REGENERATION) == 3)
+        return false;
+    if (you.species == SP_VAMPIRE && you.hunger_state <= HS_STARVING)
         return false;
     return true;
 }
